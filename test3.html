@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Cloudinary Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <h1>Cloudinary Test Page</h1>
+    
+    <div>
+        <h2>Image Test</h2>
+        <img src="https://res.cloudinary.com/do7udtgro/image/upload/q_auto/43a668b36766bcab1b3d434c36a29616" alt="Test Image" width="300">
+    </div>
+    
+    <div>
+        <h2>Video Test</h2>
+        <video width="320" height="240" controls>
+            <source src="https://res.cloudinary.com/do7udtgro/video/upload/q_auto,f_mp4/37026475e025106fbf9516f57a7de044" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+    
+    <script>
+        // Check if the page is loading correctly
+        console.log("Test page loaded successfully");
+        
+        // Log any image loading errors
+        const img = document.querySelector('img');
+        img.onerror = function() {
+            console.error("Error loading image");
+            document.body.innerHTML += "<p>Error: Image failed to load</p>";
+        };
+        img.onload = function() {
+            console.log("Image loaded successfully");
+            document.body.innerHTML += "<p>Success: Image loaded correctly</p>";
+        };
+        
+        // Log any video loading errors
+        const video = document.querySelector('video');
+        video.onerror = function() {
+            console.error("Error loading video");
+            document.body.innerHTML += "<p>Error: Video failed to load</p>";
+        };
+        video.onloadeddata = function() {
+            console.log("Video loaded successfully");
+            document.body.innerHTML += "<p>Success: Video loaded correctly</p>";
+        };
+    </script>
+</body>
+</html>
