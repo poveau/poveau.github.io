@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
         body {
             font-family: 'Montserrat', sans-serif;
@@ -13,14 +13,174 @@
             padding: 40px;
             margin-top: 30px;
         }
+        
+        .login-container {
+            max-width: 400px;
+            margin: 60px auto;
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        button {
+            background: none;
+            border: none;
+            padding: 10px 15px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .error-message {
+            color: #d32f2f;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .back-link {
+            text-decoration: none;
+            font-size: 24px;
+            color: black;
+        }
+        
+        #encrypted-content {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <a href="index.html" class="back-link">←</a>
-    <h1>Audios</h1>
+    <a href="poveau.html" class="back-link">←</a>
     
-    <p> under construction.</p>
-    </p>
-    
+    <!-- Login Form -->
+    <div class="login-container">
+        <input type="password" id="password-input" placeholder="Enter password">
+        <button onclick="attemptDecryption()">Access</button>
+        <p id="error-message" class="error-message"></p>
+    </div>
+
+    <!-- This div holds the encrypted content -->
+    <div id="encrypted-content">
+        <!-- The entire content of your page will be stored here in encrypted format -->
+    </div>
+
+    <script>
+        // Replace this with your encrypted HTML content
+        const encryptedPageContent = "U2FsdGVkX1/JVPrqKaZi+NqI/jKLZVoUXgFRn+oR+ue/nFkqDKYNwRIShwwOKvJ5N8r9h5I79O3ipWsLZTCn8O1fX3f7uTIUL9HJtV1bw/QbdGJZEkQPFUdmocSmkzAdXLgAn42XfEjBQKYQvf6iHSoO+eNpGm08moWYzeI6A2sZZk+V5sLp+zWweOvHdEDfKo1wrVn4p//KxI5IOArBIenplh+XP5iEfMBNh7bhPGLWhC1FYfcGN0BPro96ORCpIe4PY0d2uQfsDI8VBbc0awFnFamgqX5AtLbO5bhFnpDKToNlD4yXeZj4nwUu9n2AobEHjYsHf6SbcbEWdL00gJuQ0A0uO5ic0tLVPqOt038O3tg0/Lv0RGJNKqhoMbH2D07QRncIlhntqO039Q3bd25UAyiQ3cfbNr7+i0EjUy//P7dwbb29cUV5tjLuF6HRfNPSIKd7Fdm6V2DQtDyrH3WLfzU7njQvN7pla9fHZr9iS4BBJaMFuNALMsZ1E5Gp+e6+jNAHt5GHPRVyTn3jPSZjREwBsoy5TIlnClLz/9FN3paQ8vxnxagZu+WQn8kgZ8Ns8Qd7EkW0v1y2CClBiITte3X1F1CgwAupHzuct6uizK6fscZUTP2g5lE2SaAFKknc5grnukkKalWOxh0TFP0kuhGCOzYDz6lcK4Qu2SyxCo5SF9+GrWugE4h4rInqe0f68m+lAj1OmNtQ5ApGiD1LIVkCY0guu/B60DLpPW6IBDquBsKf2mUSD1Emux1Krsl2jTAOmZ0jrIYF5OB21skGQmLymJvM1NMbxtFKJamMjpTtqO+nmlNMCeYq52w6NT4KA+j6aovTaT+eTfa+ZEeiA0cRFuW4VyzNo7T1muqM/n6BRnpwg5cVYVP+Bpl5qT4L45rAOqzCkzQQ0lYRKpJOBl+TcDpTmv4A1Gk692fG6BTlCE+1pWobmta7hnrvpu0eWa+UFKR/HhxHVJi4TBJOE0W1+JTEI8RNMHI+0Dsfoe5sRVu3EDwXub0Q7zRq4qzi21ag6Rc1UMwH/qh1B5CYqiUQUVBqkV/EXDcuxgV8gCb4ukxbx91rEOKp2hyHYaHmrShZwUmP2GZ1Pyt5TLpXp6AA2uGiPwWXa50Wq6xRy0WzNrHXrg5NZQCNqU/Lc3tBlTF+FbNUTMyKO0Py82avNjZLzp9LpgNF/VchrqmlJeZW/dZpR1hxVXO44NISyWGQE3k/1V5GKFpAq+QqNHqp84h3jlYE/CYmXXNFRCGBPPu3s7si18dFg0HxvFatx55f67C4bn+I3aymdhdAoqA3LZ1PtI1zaR1Kcw+J4UJiPxUChBTkRH/XWMQBfivIO/J7kSdqsLa7u/3m6YcdDf3vvWzdkP0GVEb8DY1PRObqq4UPDPeHRpiwZYKiyANFD94P4QVq7v6jGQ48ts3W+Wsts1nUMQwQT+7ddwAadEMEEZ3kobDeetZairhVDIFXeE7OyCje0NnP+7dqB7IxSDPbSWCyLdWWzKk9NTacmodrM6Iy50OIl6kpdBDHucvNB7qiuYjTwIYjkhpSh38X0avInMhAxUTjaIOiUthKBz2vZ6efiDO1KBc3MHmQMgpyMbQTo5/gC23sLwtz9pXRF8F7i45EhjsUsZtjikqDCBvEPrSLUNIzCHzbojhEVIew/vxQiMeLjBc7cQ93aaaF1gm+BshorYVdJV0YLdyiH1RjM6NFxK1c4ulBSpmWgVugaK8JHqP09daQQaNpBX4h9cYZJaMEFBieGO2wns4JLX0=";
+        
+        function attemptDecryption() {
+            const password = document.getElementById("password-input").value;
+            const errorMessage = document.getElementById("error-message");
+            
+            if (!password) {
+                errorMessage.textContent = "Please enter a password.";
+                return;
+            }
+            
+            try {
+                // Attempt to decrypt the content
+                const decryptedContent = CryptoJS.AES.decrypt(encryptedPageContent, password).toString(CryptoJS.enc.Utf8);
+                
+                // Check if decryption was successful
+                if (!decryptedContent) {
+                    errorMessage.textContent = "Incorrect password.";
+                    return;
+                }
+                
+                // Create a temporary container to parse the HTML
+                const tempContainer = document.createElement('div');
+                tempContainer.innerHTML = decryptedContent;
+                
+                // Get all scripts from the decrypted content
+                const externalScripts = Array.from(tempContainer.querySelectorAll('script[src]'));
+                const inlineScripts = Array.from(tempContainer.querySelectorAll('script:not([src])'));
+                
+                // First, load all external scripts
+                let loadedCount = 0;
+                
+                function replaceBodyAndRunInlineScripts() {
+                    // Replace the entire body with the decrypted content
+                    document.body.innerHTML = decryptedContent;
+                    
+                    // Execute all inline scripts
+                    inlineScripts.forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        newScript.textContent = oldScript.textContent;
+                        document.body.appendChild(newScript);
+                    });
+                    
+                    // Store authentication in session storage
+                    sessionStorage.setItem("audioPageAuthenticated", "true");
+                    sessionStorage.setItem("audioPagePassword", password);
+                }
+                
+                if (externalScripts.length > 0) {
+                    externalScripts.forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        newScript.src = oldScript.src;
+                        newScript.onload = () => {
+                            loadedCount++;
+                            if (loadedCount === externalScripts.length) {
+                                replaceBodyAndRunInlineScripts();
+                            }
+                        };
+                        document.head.appendChild(newScript);
+                    });
+                } else {
+                    replaceBodyAndRunInlineScripts();
+                }
+                
+            } catch (e) {
+                errorMessage.textContent = "Incorrect password.";
+                console.error("Decryption failed:", e);
+            }
+        }
+        
+        // Check if user is already authenticated on page load
+        window.onload = function() {
+            if (sessionStorage.getItem("audioPageAuthenticated") === "true") {
+                const savedPassword = sessionStorage.getItem("audioPagePassword");
+                if (savedPassword) {
+                    try {
+                        document.getElementById("password-input").value = savedPassword;
+                        attemptDecryption();
+                    } catch (e) {
+                        // Session might be corrupted, clear it
+                        sessionStorage.removeItem("audioPageAuthenticated");
+                        sessionStorage.removeItem("audioPagePassword");
+                    }
+                }
+            }
+            
+            // Add event listener for Enter key on password input
+            const passwordInput = document.getElementById("password-input");
+            if (passwordInput) {
+                passwordInput.addEventListener("keypress", function(event) {
+                    if (event.key === "Enter") {
+                        event.preventDefault();
+                        attemptDecryption();
+                    }
+                });
+                
+                // Auto-focus the password field
+                passwordInput.focus();
+            }
+        };
+    </script>
 </body>
 </html>
