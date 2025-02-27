@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mixed Collection Gallery</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 100;
+            background-color: white;
+            margin: 0;
+            padding: 40px;
+        }
+        
+        h1 {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .gallery-item {
+            width: 100%;
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .video-container {
+            width: 100%;
+            position: relative;
+        }
+        
+        .video-container video {
+            width: 100%;
+            display: block;
+            background-color: #f0f0f0;
+        }
+        
+        .back-link {
+            position: fixed;
+            top: 40px;
+            left: 40px;
+            text-decoration: none;
+            font-size: 24px;
+            z-index: 1000;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link">←</a>
+    <h1>Mixed Collection Gallery</h1>
+    
+    <div class="gallery" id="gallery-container">
+        <!-- We'll use JavaScript to fill this in -->
+    </div>
+    
+    <script>
+        // Cloudinary configuration
+        const CLOUDINARY_CLOUD_NAME = 'do7udtgro';
+        
+        // List of your media files with your provided public IDs
+        // Assuming all are images by default - change type to 'video' for videos
+        const mediaItems = [
+            { type: 'image', publicId: '2024-10-00-10_poezcs' },
+            { type: 'image', publicId: '2024-10-00-3_gyrlcn' },
+            { type: 'image', publicId: '2024-06-00-41_vyavuw' },
+            { type: 'image', publicId: '2024-10-00-30_gmqohf' },
+            { type: 'image', publicId: '2024-10-00-37_wqqnkc' },
+            { type: 'image', publicId: '2024-10-00-29_ngot65' },
+            { type: 'image', publicId: '2024-10-00-26_doza1l' },
+            { type: 'image', publicId: '2024-10-00-25_rx54ba' },
+            { type: 'image', publicId: '2024-10-00-8_kar0z9' },
+            { type: 'image', publicId: '2024-07-00-18_kxlbgn' }
+        ];
+        
+        // Function to get a Cloudinary URL from a public ID
+        function getCloudinaryUrl(item) {
+            const resourceType = item.type || 'image';
+            const transformations = 'q_auto' + (resourceType === 'video' ? ',f_mp4' : '');
+            
+            return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload/${transformations}/${item.publicId}`;
+        }
+        
+        // Function to load all the media items
+        function loadGallery() {
+            const container = document.getElementById('gallery-container');
+            
+            // Create a Set to track unique IDs and avoid duplicates
+            const loadedIds = new Set();
+            
+            mediaItems.forEach(item => {
+                // Skip duplicates (note there were duplicate IDs in the list)
+                if (loadedIds.has(item.publicId)) {
+                    return;
+                }
+                loadedIds.add(item.publicId);
+                
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item';
+                
+                if (item.type === 'video') {
+                    galleryItem.classList.add('video-container');
+                    
+                    const video = document.createElement('video');
+                    video.controls = true;
+                    video.muted = true;
+                    video.preload = 'metadata';
+                    video.playsInline = true;
+                    
+                    // Create poster (thumbnail) from video
+                    const videoUrl = getCloudinaryUrl(item);
+                    video.poster = videoUrl.replace('/video/upload/', '/video/upload/so_auto,du_1/').replace(',f_mp4', ',f_jpg');
+                    
+                    video.src = videoUrl;
+                    
+                    // Handle video errors
+                    video.onerror = function() {
+                        console.error('Failed to load video:', video.src);
+                        const errorMsg = document.createElement('div');
+                        errorMsg.textContent = 'Video could not be loaded';
+                        errorMsg.style.padding = '30px';
+                        errorMsg.style.backgroundColor = '#f0f0f0';
+                        errorMsg.style.textAlign = 'center';
+                        galleryItem.appendChild(errorMsg);
+                    };
+                    
+                    galleryItem.appendChild(video);
+                } else {
+                    const img = document.createElement('img');
+                    img.src = getCloudinaryUrl(item);
+                    img.alt = "Gallery Image";
+                    
+                    // Handle loading errors
+                    img.onerror = function() {
+                        console.error('Failed to load image:', img.src);
+                        img.style.backgroundColor = '#f0f0f0';
+                        img.style.padding = '20px';
+                        img.style.minHeight = '200px';
+                        img.alt = 'Failed to load image';
+                    };
+                    
+                    galleryItem.appendChild(img);
+                }
+                
+                container.appendChild(galleryItem);
+            });
+        }
+        
+        // Load the gallery when the page is ready
+        document.addEventListener('DOMContentLoaded', loadGallery);
+    </script>
+</body>
+</html>
