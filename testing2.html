@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Media Gallery</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 100;
+            background-color: white;
+            margin: 0;
+            padding: 40px;
+            margin-top: 30px;
+        }
+
+        .photo-grid {
+            margin: 20px auto;
+            max-width: 1400px;
+        }
+        
+        .grid-sizer, .grid-item { width: 32%; }
+        .gutter-sizer { width: 2%; }
+        
+        .grid-item {
+            margin-bottom: 20px;
+            float: left;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 0;
+            overflow: hidden;
+            padding-top: 56.25%; /* Default 16:9 aspect ratio */
+        }
+        
+        .video-container.vertical { padding-top: 177.78%; }
+        .video-container.horizontal { padding-top: 56.25%; }
+        
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background-color: #f0f0f0;
+        }
+        
+        .grid-item img {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+        
+        .back-link {
+            position: fixed;
+            top: 40px;
+            left: 40px;
+            text-decoration: none;
+            font-size: 24px;
+            z-index: 1000;
+            color: black;
+        }
+
+        @media (max-width: 1200px) {
+            .grid-sizer, .grid-item { width: 48%; }
+            .gutter-sizer { width: 4%; }
+        }
+
+        @media (max-width: 768px) {
+            .grid-sizer, .grid-item { width: 100%; }
+            .gutter-sizer { width: 0; }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/5.0.0/imagesloaded.pkgd.min.js"></script>
+</head>
+<body>
+    <a href="index.html" class="back-link">←</a>
+    <div class="photo-grid" id="mediaGrid">
+        <div class="grid-sizer"></div>
+        <div class="gutter-sizer"></div>
+    </div>
+
+    <script>
+        // Cloudinary configuration
+        const CLOUDINARY_CLOUD_NAME = 'do7udtgro';
+        
+        // List of asset IDs for the videos gallery
+        // You'll need to create a similar array for each gallery page
+        const mediaAssets = {
+            'videos.html': [
+                { id: '37026475e025106fbf9516f57a7de044', type: 'video' },
+                { id: '15cac53faa2356024f2ec171ef10a0cd', type: 'video' },
+                { id: '5a6a2692a32e215a598e992543945c58', type: 'video' },
+                { id: '7b49c1407db7d05395eec61ae86d54b7', type: 'video' },
+                { id: '93536d7c11b887dcd4e9a5c647727a1d', type: 'video' },
+                { id: '47421350c3f758b632ed4d8770f4d569', type: 'video' },
+                { id: '44eb00d3f6954db393412bf9502c8f60', type: 'video' },
+                { id: '95ead0a0eb8fc40ee28a41b9ff06117e', type: 'video' }
+            ],
+            'gallery1.html': [
+                { id: '43a668b36766bcab1b3d434c36a29616', type: 'image' },
+                { id: '0de91c243d5a6efebd4e494f71066212', type: 'image' },
+                { id: 'cdb3e155d116667e3913d208c81e3612', type: 'image' },
+                { id: 'ca985f387a81fdc02fa27b09fd278bde', type: 'image' },
+                // Add more images for gallery1
+            ],
+            'gallery2.html': [
+                { id: '4439e8202a3818ba2c615a348f25e181', type: 'image' },
+                { id: 'a51beacf6a2b3d0aa669a6389297a218', type: 'image' },
+                { id: '969f26b9abdd23528e73d17fc3376999', type: 'image' },
+                { id: '289a4ae984e5ad669d669620171b01bf', type: 'image' },
+                // Add more images for gallery2
+            ],
+            // Add more galleries as needed
+        };
+        
+        // Helper function to get Cloudinary URLs
+        function getCloudinaryUrl(asset, options = {}) {
+            const resourceType = asset.type || 'image';
+            const transformations = options.transformations || 'q_auto';
+            
+            // For videos, convert to MP4 for web compatibility
+            const formatParam = resourceType === 'video' ? 'f_mp4' : (options.format ? `f_${options.format}` : 'f_auto');
+            const transformString = `${transformations},${formatParam}`;
+            
+            return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload/${transformString}/${asset.id}`;
+        }
+
+        function loadMedia() {
+            const grid = document.getElementById('mediaGrid');
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            const pageAssets = mediaAssets[currentPage];
+            
+            if (!pageAssets) {
+                console.error(`No media assets found for page: ${currentPage}`);
+                return;
+            }
+            
+            pageAssets.forEach(asset => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'grid-item';
+                
+                if (asset.type === 'video') {
+                    const videoContainer = document.createElement('div');
+                    videoContainer.className = 'video-container';
+                    
+                    const videoElement = document.createElement('video');
+                    // Generate Cloudinary video URL with MP4 conversion for web compatibility
+                    videoElement.src = getCloudinaryUrl(asset, { transformations: 'q_auto' });
+                    videoElement.controls = true;
+                    videoElement.muted = true;
+                    videoElement.preload = 'metadata'; // Just load metadata initially for performance
+                    videoElement.playsInline = true;
+                    
+                    // Generate thumbnail
+                    const thumbnailUrl = getCloudinaryUrl(asset, { 
+                        transformations: 'q_auto,w_640,h_360,c_pad',
+                        format: 'jpg'
+                    }).replace('/video/upload/', '/video/upload/so_auto,du_1/');
+                    
+                    videoElement.poster = thumbnailUrl;
+                    
+                    // Play when in view
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                videoElement.play().catch(e => console.log("Autoplay prevented:", e));
+                            } else {
+                                videoElement.pause();
+                            }
+                        });
+                    }, { threshold: 0.5 });
+                    
+                    videoElement.addEventListener('loadedmetadata', () => {
+                        if (videoElement.videoHeight > videoElement.videoWidth) {
+                            videoContainer.classList.add('vertical');
+                        } else {
+                            videoContainer.classList.add('horizontal');
+                        }
+                        const aspectRatio = (videoElement.videoHeight / videoElement.videoWidth) * 100;
+                        videoContainer.style.paddingTop = `${aspectRatio}%`;
+                        if (msnry) msnry.layout();
+                    });
+                    
+                    videoContainer.appendChild(videoElement);
+                    wrapper.appendChild(videoContainer);
+                    
+                    // Start observing once added to DOM
+                    setTimeout(() => observer.observe(videoElement), 100);
+                } else {
+                    const imgElement = document.createElement('img');
+                    // Generate Cloudinary image URL with optimizations
+                    imgElement.src = getCloudinaryUrl(asset, { transformations: 'q_auto,f_auto' });
+                    imgElement.alt = asset.description || asset.id;
+                    
+                    wrapper.appendChild(imgElement);
+                }
+                
+                grid.appendChild(wrapper);
+            });
+
+            let msnry;
+
+            imagesLoaded(grid, function() {
+                msnry = new Masonry(grid, {
+                    itemSelector: '.grid-item',
+                    columnWidth: '.grid-sizer',
+                    gutter: '.gutter-sizer',
+                    percentPosition: true,
+                    transitionDuration: 0
+                });
+            });
+
+            // Periodically relayout as videos/images load
+            let layoutCount = 0;
+            const layoutInterval = setInterval(() => {
+                if (msnry && layoutCount < 10) {
+                    msnry.layout();
+                    layoutCount++;
+                } else {
+                    clearInterval(layoutInterval);
+                }
+            }, 1000);
+        }
+
+        window.onload = loadMedia;
+    </script>
+</body>
+</html>
