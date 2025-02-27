@@ -44,6 +44,7 @@
         .video-container video {
             width: 100%;
             display: block;
+            background-color: #f0f0f0;
         }
         
         .back-link {
@@ -70,10 +71,11 @@
         const CLOUDINARY_CLOUD_NAME = 'do7udtgro';
         
         // List of your media files with your provided public IDs
+        // Mark videos with type: 'video'
         const mediaItems = [
             { type: 'image', publicId: '2024-06-00-6_ao5mtl' },
             { type: 'image', publicId: '2024-06-00-4_pvcmuc' },
-            { type: 'image', publicId: '2024-06-00-9_zwhffy' },
+            { type: 'video', publicId: '2024-06-00-9_zwhffy' }, // Assuming this is a video
             { type: 'image', publicId: '2024-06-00-8_jzpcv6' },
             { type: 'image', publicId: '2024-06-00-7_h96tfv' },
             { type: 'image', publicId: '2024-06-00-5_jtoatv' }
@@ -103,12 +105,25 @@
                     video.controls = true;
                     video.muted = true;
                     video.preload = 'metadata';
+                    video.playsInline = true;
                     
-                    const source = document.createElement('source');
-                    source.src = getCloudinaryUrl(item);
-                    source.type = 'video/mp4';
+                    // Create poster (thumbnail) from video
+                    const videoUrl = getCloudinaryUrl(item);
+                    video.poster = videoUrl.replace('/video/upload/', '/video/upload/so_auto,du_1/').replace(',f_mp4', ',f_jpg');
                     
-                    video.appendChild(source);
+                    video.src = videoUrl;
+                    
+                    // Handle video errors
+                    video.onerror = function() {
+                        console.error('Failed to load video:', video.src);
+                        const errorMsg = document.createElement('div');
+                        errorMsg.textContent = 'Video could not be loaded';
+                        errorMsg.style.padding = '30px';
+                        errorMsg.style.backgroundColor = '#f0f0f0';
+                        errorMsg.style.textAlign = 'center';
+                        galleryItem.appendChild(errorMsg);
+                    };
+                    
                     galleryItem.appendChild(video);
                 } else {
                     const img = document.createElement('img');
