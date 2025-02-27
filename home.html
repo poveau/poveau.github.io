@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photography Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            font-family: 'Montserrat', sans-serif;
+            background-color: white;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .collection-link {
+            text-decoration: none;
+            color: black;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: opacity 0.3s ease;
+        }
+
+        .collection-link:hover {
+            opacity: 0.8;
+        }
+
+        .preview-image {
+            width: 100%;
+            aspect-ratio: 3/2;
+            object-fit: cover;
+            background-color: #f5f5f5;
+        }
+
+        .collection-title {
+            font-size: 1.2rem;
+            font-weight: 100;
+            margin: 0;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+
+            main {
+                gap: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <a href="2024.06.00.html" class="collection-link">
+            <img src="images/edited/2024-06-00/2024-06-00-6.jpg" alt="June 2024 Preview" class="preview-image">
+            <h2 class="collection-title">2024.06.00</h2>
+        </a>
+        <a href="2024.07.00.html" class="collection-link">
+            <img src="images/edited/2024-07-00/2024-07-00-16.jpg" alt="July 2024 Preview" class="preview-image">
+            <h2 class="collection-title">2024.07.00</h2>
+        </a>
+        <a href="2024.10.00.html" class="collection-link">
+            <img src="images/edited/2024-10-00/2024-10-00-10.jpg" alt="October 2024 Preview" class="preview-image">
+            <h2 class="collection-title">2024.10.00</h2>
+        </a>
+        <a href="2024.12.06.html" class="collection-link">
+            <h2 class="collection-title">2024.12.06</h2>
+        </a>
+        <a href="page_audios.html" class="collection-link">
+            <h2 class="collection-title">Audios</h2>
+        </a>
+
+        <a href="2024.12.23.html" class="collection-link">
+            <h2 class="collection-title">2024.12.23</h2>
+        </a>
+
+
+    </main>
+</body>
+</html>
