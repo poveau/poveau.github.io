@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Simple Gallery</title>
+    <title>My Gallery</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100&display=swap" rel="stylesheet">
     <style>
@@ -61,49 +61,78 @@
     <a href="index.html" class="back-link">←</a>
     <h1>Gallery</h1>
     
-    <div class="gallery">
-        <!-- Hard-coded image example - this WILL work if the ID is correct -->
-        <div class="gallery-item">
-            <img src="https://res.cloudinary.com/do7udtgro/image/upload/q_auto/2024-06-00-6_ao5mtl" alt="Gallery Image">
-        </div>
-        
-        <!-- Add a direct link to verify Cloudinary is working -->
-        <div class="gallery-item">
-            <img src="https://res.cloudinary.com/demo/image/upload/sample" alt="Cloudinary Sample">
-        </div>
-        
-        <!-- Hard-coded video example - if you have videos -->
-        <!--
-        <div class="gallery-item video-container">
-            <video controls muted preload="metadata">
-                <source src="https://res.cloudinary.com/do7udtgro/video/upload/q_auto,f_mp4/your-video-id-here" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-        </div>
-        -->
+    <div class="gallery" id="gallery-container">
+        <!-- We'll use JavaScript to fill this in -->
     </div>
     
     <script>
-        // Simple script to log if anything goes wrong
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Page loaded successfully');
+        // Cloudinary configuration
+        const CLOUDINARY_CLOUD_NAME = 'do7udtgro';
+        
+        // List of your media files (add your own Cloudinary public IDs here)
+        const mediaItems = [
+            // The one we know works
+            { type: 'image', publicId: '2024-06-00-6_ao5mtl' },
             
-            // Add error handling for images
-            const images = document.querySelectorAll('img');
-            images.forEach(img => {
-                img.onerror = function() {
-                    console.error('Failed to load image:', img.src);
-                    img.style.backgroundColor = '#f0f0f0';
-                    img.style.padding = '20px';
-                    img.style.minHeight = '200px';
-                    img.alt = 'Failed to load image: ' + img.src;
-                };
+            // Add your other media items here, for example:
+            // { type: 'image', publicId: 'your-public-id-2' },
+            // { type: 'image', publicId: 'your-public-id-3' },
+            // { type: 'video', publicId: 'your-video-id-1' },
+        ];
+        
+        // Function to get a Cloudinary URL from a public ID
+        function getCloudinaryUrl(item) {
+            const resourceType = item.type || 'image';
+            const transformations = 'q_auto' + (resourceType === 'video' ? ',f_mp4' : '');
+            
+            return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload/${transformations}/${item.publicId}`;
+        }
+        
+        // Function to load all the media items
+        function loadGallery() {
+            const container = document.getElementById('gallery-container');
+            
+            mediaItems.forEach(item => {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item';
                 
-                img.onload = function() {
-                    console.log('Successfully loaded image:', img.src);
-                };
+                if (item.type === 'video') {
+                    galleryItem.classList.add('video-container');
+                    
+                    const video = document.createElement('video');
+                    video.controls = true;
+                    video.muted = true;
+                    video.preload = 'metadata';
+                    
+                    const source = document.createElement('source');
+                    source.src = getCloudinaryUrl(item);
+                    source.type = 'video/mp4';
+                    
+                    video.appendChild(source);
+                    galleryItem.appendChild(video);
+                } else {
+                    const img = document.createElement('img');
+                    img.src = getCloudinaryUrl(item);
+                    img.alt = "Gallery Image";
+                    
+                    // Handle loading errors
+                    img.onerror = function() {
+                        console.error('Failed to load image:', img.src);
+                        img.style.backgroundColor = '#f0f0f0';
+                        img.style.padding = '20px';
+                        img.style.minHeight = '200px';
+                        img.alt = 'Failed to load image';
+                    };
+                    
+                    galleryItem.appendChild(img);
+                }
+                
+                container.appendChild(galleryItem);
             });
-        });
+        }
+        
+        // Load the gallery when the page is ready
+        document.addEventListener('DOMContentLoaded', loadGallery);
     </script>
 </body>
 </html>
